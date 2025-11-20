@@ -1,0 +1,24 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: workspace-{{ .Values.guid }}
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: {{ .Values.workspace.git.url }}
+    targetRevision: {{ .Values.workspace.git.revision }}
+    path: {{ .Values.workspace.git.path }}
+    helm:
+      values: |
+        username: '{{- "{{" }} user {{- " }}" }}'
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: workspace-{{ .Values.guid }}
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+    automated:
+      prune: false
+      selfHeal: false
