@@ -1,0 +1,43 @@
+{{- if .Values.dpaInstance.deploy -}}
+---
+apiVersion: oadp.openshift.io/v1alpha1
+kind: DataProtectionApplication
+metadata:
+  name: oadp-dpa
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  configuration:
+    velero:
+      featureFlags:
+      - EnableCSI
+      defaultPlugins:
+      - csi
+      - openshift
+      - aws
+      - kubevirt
+  backupLocations:
+  - velero:
+      config:
+        profile: default
+{{- if eq .Values.dpaInstance.storage "minio" }}
+        region: minio
+        s3Url: {{ .Values.dpaInstance.minio.serviceProtocol }}://{{ .Values.dpaInstance.minio.serviceName }}.{{ .Values.dpaInstance.minio.serviceNamespace }}.svc:{{ .Values.dpaInstance.minio.servicePort}}
+{{- else }}
+        region: localstorage
+        s3Url: to_be_set_by_job
+{{- end }}
+        s3ForcePathStyle: "true"
+      provider: aws
+      credential:
+        name: cloud-credentials
+        key: cloud
+      default: true
+      objectStorage:
+{{- if eq .Values.dpaInstance.storage "minio" }}
+        bucket: {{ .Values.dpaInstance.minio.storageBucketName }}
+{{- else }}
+        bucket: to_be_set_by_job
+{{- end }}
+        prefix: velero
+{{- end -}}
