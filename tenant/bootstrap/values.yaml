@@ -106,3 +106,9 @@ ocp4_workload_oadp_gitops_catalog_snapshot_image: quay.io/gpte-devops-automation
 
 # Catalog snapshot image tag
 ocp4_workload_oadp_gitops_catalog_snapshot_image_tag: "v4.16_2024_08_19"
+
+guids:
+  - xyzzy
+  - abc123
+  - def456
+  - ghi789
