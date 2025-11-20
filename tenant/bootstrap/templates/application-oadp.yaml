@@ -1,0 +1,61 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: oadp-{{ .Values.guid }}
+  namespace: openshift-gitops
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    name: ''
+    # namespace: openshift-adp
+    namespace: oadp-user-{{ .Values.guid }}
+    server: 'https://kubernetes.default.svc'
+  project: default
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+    automated:
+      prune: false
+      selfHeal: false
+  ignoreDifferences:
+  - group: '*'
+    kind: DataProtectionApplication
+    jsonPointers:
+    - /spec/backupLocations/0/velero/config/s3Url
+    - /spec/backupLocations/0/velero/objectStorage/bucket
+  source:
+    repoURL: https://github.com/rhpds/ocp-virt-roadshow-gitops.git
+    targetRevision: dev
+    path: tenant/oadp
+    helm:
+      values: |
+        namespacePermissions:
+          user: user-{{ .Values.guid }}
+          role: admin
+        deployOperator: true
+        operatorChannel: {{ .Values.ocp4_workload_oadp_gitops_channel }}
+        useCatalogSnapshot: {{ .Values.ocp4_workload_oadp_gitops_use_catalog_snapshot }}
+        catalogSource:
+          name: {{ .Values.ocp4_workload_oadp_gitops_catalogsource_name }}
+          namespace: oadp-{{ .Values.guid }}
+          image: {{ .Values.ocp4_workload_oadp_gitops_catalog_snapshot_image }}
+          tag: {{ .Values.ocp4_workload_oadp_gitops_catalog_snapshot_image_tag }}
+{{- if .Values.ocp4_workload_oadp_gitops_configure_dpa }}
+        dpaInstance:
+          deploy: true
+{{- if eq .Values.ocp4_workload_oadp_gitops_storage "minio" }}
+          storage: minio
+          minio:
+            serviceProtocol: http
+            serviceName: "{{ .Values.ocp4_workload_oadp_gitops_storage_minio_name }}"
+            serviceNamespace: "{{ .Values.ocp4_workload_oadp_gitops_storage_minio_namespace }}"
+            servicePort: 9000
+            user: "{{ .Values.ocp4_workload_oadp_gitops_storage_minio_user }}"
+            password: "{{ .Values.ocp4_workload_oadp_gitops_storage_minio_password }}"
+            storageBucketName: "{{ .Values.ocp4_workload_oadp_gitops_storage_minio_bucket_name }}"
+{{- else }}
+          storage: odf
+{{- end -}}
+{{- end -}}
