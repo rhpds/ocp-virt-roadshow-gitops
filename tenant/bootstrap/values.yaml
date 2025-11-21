@@ -5,8 +5,6 @@
 # ocp4_workload_oadp_gitops
 # -------------------------------------------------------------------
 
-guid: "xyzzy"
-
 # Multi User
 ocp4_workload_oadp_gitops_namespace_base: oadp
 ocp4_workload_oadp_gitops_configure_dpa: true
