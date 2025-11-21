@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: 'tenant-app-of-apps'
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/rhpds/ocp-virt-roadshow-gitops.git
+    path: tenant/bootstrap
+    targetRevision: dev
+    helm:
+      parameters:
+        - name: guid
+          valueFrom:
+            configMapKeyRef:
+              name: tenant-guid-list
+              namespace: default
+              key: guid
+      values: |
+        deployer:
+            apiUrl: https://api.cluster-2xldj.dynamic.redhatworkshops.io:6443
+            domain: apps.cluster-2xldj.dynamic.redhatworkshops.io
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: openshift-gitops
+  syncPolicy:
+    automated: {}

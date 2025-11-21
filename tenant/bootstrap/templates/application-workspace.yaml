@@ -11,16 +11,11 @@ spec:
     targetRevision: dev
     path: tenant/workspace
     helm:
-      parameters:
-        - name: guid
-          valueFrom:
-            configMapKeyRef:
-              name: tenant-guid-list
-              namespace: default
-              key: guid
+      values: |
+        nothing: "nothing"
   destination:
     server: https://kubernetes.default.svc
-    namespace: workspace-{{ .Values.guid }}
+    namespace: workspace-tenant-1
   syncPolicy:
     syncOptions:
     - CreateNamespace=true
