@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: workspace-{{ .Values.guid }}
+  name: tenant-workspaces
   namespace: openshift-gitops
 spec:
   project: default
