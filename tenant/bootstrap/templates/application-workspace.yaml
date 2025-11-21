@@ -11,8 +11,12 @@ spec:
     targetRevision: dev
     path: tenant/workspace
     helm:
-      values: |
-        username: '{{- "{{" }} user {{- " }}" }}'
+      parameters:
+        - name: guids
+          valueFrom:
+            configMapKeyRef:
+              name: tenant-guid-list
+              namespace: default
   destination:
     server: https://kubernetes.default.svc
     namespace: workspace-{{ .Values.guid }}
